@@ -123,6 +123,8 @@ make run
 
 ```
 
+The app API documentation is at: http://localhost:8080/docs
+
 To stop app type:
 
 ```bash
