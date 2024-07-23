@@ -4,7 +4,7 @@ COPY ./main.py /app/
 COPY ./requirements.txt /app/requirements.txt
 COPY ./worker.py /app/worker.py
 COPY ./cities.py /app/cities.py
-COPY alembic /app/alembic
+COPY ./alembic /app/alembic
 COPY ./alembic.ini /app/alembic.ini
 COPY ./model.py /app/model.py
 COPY ./sdk.py /app/sdk.py

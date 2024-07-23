@@ -1,0 +1,22 @@
+FROM python:3.11.3-slim-buster
+
+WORKDIR /app
+
+COPY ./main.py /app/
+
+COPY ./requirements.txt /app/requirements.txt
+COPY ./worker.py /app/worker.py
+COPY ./test-cities.py /app/cities.py
+COPY alembic /app/alembic
+COPY ./alembic.ini /app/alembic.ini
+COPY ./model.py /app/model.py
+COPY ./sdk.py /app/sdk.py
+COPY ./test_main.py /app/test_main.py
+
+
+
+RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install pytest httpx pytest-asyncio pytest-cov
+
+
+CMD ["pytest", "--cov=.", "--cov-report=term-missing", "-p", "no:warnings", "test_main.py"]

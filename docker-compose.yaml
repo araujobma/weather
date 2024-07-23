@@ -13,8 +13,7 @@ services:
       POSTGRES_PASSWORD: mypass
       POSTGRES_DB: postgres
       PGDATA: /data/postgres
-    volumes:
-      - ./data/postgres:/data/postgres
+    
     ports:
       - "5432:5432"
     
@@ -55,3 +54,13 @@ services:
       - worker
       - rabbitmq
       - db
+
+  test:
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+    container_name: test
+    env_file:
+      - .env
+    depends_on:
+      - web
