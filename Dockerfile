@@ -7,6 +7,7 @@ COPY ./cities.py /app/cities.py
 COPY alembic /app/alembic
 COPY ./alembic.ini /app/alembic.ini
 COPY ./model.py /app/model.py
+COPY ./sdk.py /app/sdk.py
 
 RUN pip install --no-cache-dir --upgrade -r /app/requirements.txt
 RUN mkdir /app/logs/

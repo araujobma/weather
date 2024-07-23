@@ -7,7 +7,7 @@ services:
     container_name: postgres
     restart: always
     # set shared memory limit when using docker-compose
-    shm_size: 128mb
+    shm_size: 256mb
     environment:
       POSTGRES_USER: user
       POSTGRES_PASSWORD: mypass
@@ -22,6 +22,7 @@ services:
     hostname: rabbitmq
     image: rabbitmq:3
     container_name: rabbitmq
+    shm_size: 256mb
     ports:
       # AMQP protocol port
       - "5672:5672"
@@ -35,6 +36,8 @@ services:
     build: .
     command: celery -A worker.celery_app worker --loglevel=info
     container_name: worker
+    env_file:
+      - .env
     depends_on:
       - rabbitmq
       - db
