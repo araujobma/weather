@@ -1,7 +1,8 @@
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, Response, status
 import uvicorn
 from pydantic import BaseModel, Field
-from typing import List, Any, Dict
+from model import WeatherTask
+from typing import List, Dict
 
 from worker import create_multi_tasks, get_tasks_completion, get_results
 
@@ -10,38 +11,58 @@ from cities import cities
 
 
 class TaskRequest(BaseModel):
-    id: str
+    id: str | None = None
 
 
 class TaskCompletion(BaseModel):
-    completed_percentage: float = Field(ge=0, le=100)
+    completed_percentage: float = Field(ge=0, le=100, default=None)
 
 
 class Result(BaseModel):
-    results: List[Dict]
+    results: List[Dict] | None = None
 
 
 app = FastAPI()
 
 
 @app.post("/tasks", status_code=201)
-async def run_task(task_request: TaskRequest):
-    create_multi_tasks(task_request.id, cities)
-    return {"id": task_request.id}
+async def run_task(task_request: TaskRequest, response: Response):
+    existing_task = WeatherTask.get_by_id(task_request.id)
+    if existing_task:
+        response.status_code = status.HTTP_200_OK
+        return TaskRequest(id=task_request.id)
+
+    task_group_id = create_multi_tasks(task_request.id, cities)
+    task = WeatherTask(id=task_request.id, task_group_id=task_group_id)
+    task.save()
+
+    return TaskRequest(id=task_request.id)
 
 
-@app.get("/completion", status_code=200)
-async def get_completed(request: Request):
-    params = dict(request.query_params)
+@app.get("/completion/{id}", status_code=200)
+async def get_completed(id, response: Response):
 
-    return TaskCompletion(completed_percentage=get_tasks_completion(params["id"]))
+    task = WeatherTask.get_by_id(id)
+    if not task:
+        response.status_code = status.HTTP_404_NOT_FOUND
+        return TaskCompletion()
+
+    task_group_id = task.task_group_id
+
+    return TaskCompletion(completed_percentage=get_tasks_completion(task_group_id))
 
 
-@app.get("/results", status_code=200)
-async def get_completed(request: Request):
-    params = dict(request.query_params)
+@app.get("/results/{id}", status_code=200)
+async def get_completed(id, response: Response):
 
-    return Result(results=get_results(params["id"]))
+    task = WeatherTask.get_by_id(id)
+    if not task:
+        response.status_code = status.HTTP_404_NOT_FOUND
+        return Result()
+
+    task_group_id = task.task_group_id
+
+    return Result(results=get_results(task_group_id))
 
 
 if __name__ == "__main__":

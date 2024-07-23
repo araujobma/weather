@@ -12,7 +12,7 @@ celery_app.conf.broker_url = os.environ.get(
 )
 celery_app.conf.result_backend = os.environ.get(
     "CELERY_RESULT_BACKEND",
-    "db+postgresql://user:mypass@postgres:5432/db",
+    "db+postgresql://user:mypass@postgres:5432/postgres",
 )
 
 celery_app.conf.update(result_extended=True)
@@ -25,11 +25,12 @@ def create_task(city_id):
     return True
 
 
-def create_multi_tasks(request_id, cities):
+def create_multi_tasks(request_id, cities) -> str:
     job = group(create_task.s(city_id) for city_id in cities[0:30])
     result = job.apply_async()
     result.save()
     print("RESULT GROUP ID:", result.id)
+    return result.id
 
 
 def get_tasks_completion(request_id):
