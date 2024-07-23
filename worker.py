@@ -38,7 +38,7 @@ def get_tasks_completion(request_id):
     return (sum(successful) / len(successful)) * 100.0
 
 
-def get_results(request_id):
+def get_task_results(request_id):
     results = GroupResult.restore(request_id, app=celery_app)
     successful = [r.result for r in results if r.successful()]
     return successful

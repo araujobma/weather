@@ -4,7 +4,7 @@ from pydantic import BaseModel, Field
 from model import WeatherTask
 from typing import List, Dict
 
-from worker import create_multi_tasks, get_tasks_completion, get_results
+from worker import create_multi_tasks, get_tasks_completion, get_task_results
 
 
 from cities import cities
@@ -26,7 +26,7 @@ app = FastAPI()
 
 
 @app.post("/tasks", status_code=201)
-async def run_task(task_request: TaskRequest, response: Response):
+async def run_task(task_request: TaskRequest, response: Response) -> TaskRequest:
     existing_task = WeatherTask.get_by_id(task_request.id)
     if existing_task:
         response.status_code = status.HTTP_200_OK
@@ -40,7 +40,7 @@ async def run_task(task_request: TaskRequest, response: Response):
 
 
 @app.get("/completion/{id}", status_code=200)
-async def get_completed(id, response: Response):
+async def get_completion(id, response: Response) -> TaskCompletion:
 
     task = WeatherTask.get_by_id(id)
     if not task:
@@ -53,7 +53,7 @@ async def get_completed(id, response: Response):
 
 
 @app.get("/results/{id}", status_code=200)
-async def get_completed(id, response: Response):
+async def get_results(id, response: Response) -> Result:
 
     task = WeatherTask.get_by_id(id)
     if not task:
@@ -62,7 +62,7 @@ async def get_completed(id, response: Response):
 
     task_group_id = task.task_group_id
 
-    return Result(results=get_results(task_group_id))
+    return Result(results=get_task_results(task_group_id))
 
 
 if __name__ == "__main__":
