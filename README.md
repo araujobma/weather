@@ -49,3 +49,85 @@ System to collect Open Weather API information about cities weather when the use
 - Containerization: Docker allows to package the application and its dependencies into a container, ensuring that it runs consistently across different environments.
 - Simplified Deployment: Docker Compose helps in defining and running multi-container Docker applications. With a single command, you can set up the entire environment, including FastAPI, PostgreSQL, Celery, and RabbitMQ.
 - Isolation and Consistency: Containers provide an isolated environment, ensuring that application behaves the same way in development, testing, and production.
+
+### Docker Installation Ubuntu 20.04+
+
+Remove conflicts:
+
+```bash
+for pkg in docker.io docker-doc docker-compose docker-compose-v2 podman-docker containerd runc; do sudo apt-get remove $pkg; done
+```
+
+Add apt respository:
+
+```bash
+# Add Docker's official GPG key:
+sudo apt-get update
+sudo apt-get install ca-certificates curl
+sudo install -m 0755 -d /etc/apt/keyrings
+sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+sudo chmod a+r /etc/apt/keyrings/docker.asc
+
+# Add the repository to Apt sources:
+echo \
+ "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
+ $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
+ sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+sudo apt-get update
+```
+
+Install:
+
+```bash
+sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+```
+
+For running docker without being superuser: https://docs.docker.com/engine/install/linux-postinstall/
+
+Test:
+
+```bash
+docker run hello-world
+```
+
+### Test and Run Application
+
+At this point, you should have inserted your Open Weather API KEY in the
+
+.env file:
+
+```bash
+API_KEY=<Your api key here>
+```
+
+#### Test
+
+To run tests type:
+
+```bash
+make run_test
+# that executes these commands:
+# docker compose down
+# docker compose up --build test
+# docker compose down
+```
+
+#### Run App
+
+To run app type:
+
+```bash
+make run
+# that executes this command:
+# docker compose up -d --build web
+
+```
+
+To stop app type:
+
+```bash
+make stop
+# that executes this command:
+# docker compose down
+
+```
